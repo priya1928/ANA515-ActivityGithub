@@ -1,0 +1,131 @@
+---
+title: "Avengers"
+author: "Priya Akhil Goyal"
+date: "6/27/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Dataset Information
+The dataset that I am using is linked here at - https://github.com/fivethirtyeight/data/tree/master/avengers, titled *“Avengers”*, which contains information about 173 avengers.This dataset contains the data behind the story Joining The Avengers Is As Deadly As Jumping Off A Four-Story Building.
+
+It isn’t clear how this data was collected but it was collected by Andrew Flowers, a Progressive economist and a data journalist on FiveThirtyEight. 
+
+The directory of avengers was given in 1 format – .csv. Based off the csv. file, I find that its a flat file as it stores data in plain text format. It is not a fixed width file rather it uses ',' comma character as the delimiter. Additionally, they are all aligned to the left, and each row contains one complete record of information. 
+
+To open this R markdown file, I first downloaded the Rmarkdown package using install.packages(“rmarkdown") and pulled it into my library using library(rmarkdown). package
+
+avengers.csv details the deaths of Marvel comic book characters between the time they joined the Avengers and April 30, 2015, the week before Secret Wars #1.
+
+```{r}
+library(rmarkdown)
+```
+
+
+# Importing the file into RStudio
+In order to read the file into R, 
+
+I copy pasted the raw text file link from GitHub and insert it into the R code using the function below and read the data into R as `avengers_data`
+```{r}
+download.file(url = "https://raw.githubusercontent.com/fivethirtyeight/data/master/avengers/avengers.csv", destfile = "avengers_data.csv")
+avengers_data<-read.csv("avengers_data.csv", stringsAsFactors = FALSE)
+```
+
+I made use of read.csv to read the csv format data from the provided link into R.
+
+Next, I wanted to see whether all the data was imported into R so I printed the dataset of the first 10 rows below: 
+```{r}
+head(avengers_data,10)
+```
+Next, I want to check different column names used in the dataset.
+```{r}
+colnames(x = avengers_data)
+```
+
+
+```{r}
+library("dplyr")
+avengers_data <- read.csv(file = "avengers_data.csv")
+avengers_data <- rename(.data = avengers_data,
+                     IntroYear = Year)
+                     
+head(x = avengers_data, 3)
+```
+
+The 7th column name is too big("Full.Reserve.Avengers.Intro") and not easily understood as well, so I'm renaming it to "Intro Month" along with a few others.
+```{r}
+avengers_data <- rename(.data = avengers_data,
+                     Intro.Month = Full.Reserve.Avengers.Intro,
+                     Probation.Date = Probationary.Introl)
+                     
+head(x = avengers_data, 3)
+```
+
+Check if the renaming code worked!
+```{r}
+colnames(x = avengers_data)
+```
+
+
+
+# Data exploration and making changes in the dataset
+
+1. I first viewed the different columns in the dataset using the `colnames` function. There are 21 columns: 
+```{r}
+colnames(avengers_data)
+```
+
+
+2. I wanted to filter to the rows where the values in *name/alias* is not set.
+```{r}
+missing_data <- filter(.data = avengers_data, 
+                     Name.Alias == "")
+head(x = missing_data)
+```
+
+3. Lastly, I wanted to add 6 years to the column Year.since.joining as this is till 2015 and to make it reflect true years since joining, we need to add 6 to the number.
+
+4.But to be able to perform this action we first need to transform the column to numeric data type.
+```{r}
+t_avengers_data <- transform(avengers_data,
+                             Years.since.joining = as.numeric(Years.since.joining))
+t_avengers_data$total.years <- t_avengers_data$Years.since.joining+6
+```
+
+```{r}
+head(avengers_data,10)
+head(t_avengers_data,10)
+```
+
+
+
+
+# Observing the descriptive summaries of the dataset
+
+As we saw above the type of data is very important and we should know what datatypes coprises our dataset.We can see the types of data in a more concise format through the code below: 
+```{r}
+summary.default(t_avengers_data)
+```
+
+
+
+First, I wanted to see if there are any missing values in the dataset. In order to see number of missing values in each of the column, I used the `colSums()` function to see the number of total missing values in each column. The output shows that our data has 98 missing values for Notes. But that's fine because mean, max and min of notes won't make sense either way.
+
+```{r}
+colSums(is.na(avengers_data))
+```
+
+
+Next, in order to build a table, I downloaded the `knitr` package to use the `kable` function. I used the summary function to get the following summaries of these columns minimum value, maximum value, mean value.The first table shows the descriptive statistics of each column in the dataset, while the second table shows the first 10 rows of data in the table. 
+
+
+```{r}
+library(knitr)
+kable(summary(avengers_data), caption="The descriptive summary statistics of each column in the gender dataset")
+kable(head(avengers_data,n=10), caption="The first 10 rows of each column in the gender dataset")
+```
+
